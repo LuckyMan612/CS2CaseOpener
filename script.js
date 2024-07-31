@@ -2,12 +2,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const casesButton = document.getElementById("cases-button");
     const inventoryButton = document.getElementById("inventory-button");
     const upgraderButton = document.getElementById("upgrader-button");
+    const shopButton = document.getElementById("shop-button");
     const allSkinsButton = document.getElementById("all-skins-button");
 
     const casesSection = document.getElementById("cases-section");
     const caseDetailsSection = document.getElementById("case-details-section");
     const inventorySection = document.getElementById("inventory-section");
     const upgraderSection = document.getElementById("upgrader-section");
+    const shopSection = document.getElementById("shop-section");
     const allSkinsSection = document.getElementById("all-skins-section");
 
     const caseAnimation = document.getElementById("case-animation");
@@ -16,10 +18,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const inventory = document.getElementById("inventory");
     const allSkins = document.getElementById("all-skins");
     const upgradeOptions = document.getElementById("upgrade-options");
+    const selectedSkins = document.getElementById("selected-skins");
+    const shop = document.getElementById("shop");
 
     let skins = [];
     let cases = [];
     let userInventory = [];
+    let userBalance = 0;
+    let selectedUpgradeSkins = [];
     let currentCase = null;
 
     fetch('data/skins.json')
@@ -50,6 +56,11 @@ document.addEventListener("DOMContentLoaded", () => {
         displayUpgradeOptions();
     });
 
+    shopButton.addEventListener("click", () => {
+        setActiveSection(shopSection);
+        displayShop();
+    });
+
     allSkinsButton.addEventListener("click", () => {
         setActiveSection(allSkinsSection);
     });
@@ -59,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         caseDetailsSection.classList.remove("active");
         inventorySection.classList.remove("active");
         upgraderSection.classList.remove("active");
+        shopSection.classList.remove("active");
         allSkinsSection.classList.remove("active");
         section.classList.add("active");
     }
@@ -85,16 +97,16 @@ document.addEventListener("DOMContentLoaded", () => {
         currentCase = caseData;
         document.getElementById("case-name").innerText = caseData.name;
         document.getElementById("case-image").src = caseData.image;
-        document.getElementById("case-image").alt = caseData.name;
+        caseResult.innerHTML = "";
+        caseAnimation.innerHTML = "";
+        displayCaseSkins(caseData.skins);
+        setActiveSection(caseDetailsSection);
+    }
 
-        const openCaseButton = document.getElementById("open-case-button");
-        openCaseButton.addEventListener("click", () => {
-            openCase();
-        });
-
-        const caseSkinsContainer = document.getElementById("case-skins");
-        caseSkinsContainer.innerHTML = "";
-        caseData.skins.forEach(skinName => {
+    function displayCaseSkins(skins) {
+        const caseSkins = document.getElementById("case-skins");
+        caseSkins.innerHTML = "";
+        skins.forEach(skinName => {
             const skin = skins.find(s => s.name === skinName);
             if (skin) {
                 const skinDiv = document.createElement("div");
@@ -103,32 +115,34 @@ document.addEventListener("DOMContentLoaded", () => {
                     <p>${skin.name}</p>
                     <img src="${skin.image}" alt="${skin.name}">
                 `;
-                caseSkinsContainer.appendChild(skinDiv);
+                caseSkins.appendChild(skinDiv);
             }
         });
-
-        setActiveSection(caseDetailsSection);
     }
 
-    function openCase() {
-        caseAnimation.innerHTML = "Otwieranie skrzyni...";
-        caseResult.innerHTML = "";
-        setTimeout(() => {
-            const skin = getRandomSkinFromCase(currentCase);
-            const price = generatePrice(skin);
-            showCaseResult(skin, price);
-            userInventory.push({ ...skin, price });
-        }, 2000);
+    document.getElementById("open-case-button").addEventListener("click", () => {
+        if (currentCase) {
+            openCase(currentCase);
+        }
+    });
+
+    function openCase(caseData) {
+        const randomSkin = getRandomSkinFromCase(caseData.skins);
+        const price = generatePrice(randomSkin);
+        userInventory.push({ ...randomSkin, price });
+        animateCaseOpening(randomSkin, price);
     }
 
-    function getRandomSkinFromCase(caseData) {
-        const totalValue = caseData.skins.reduce((sum, skinName) => {
+    function getRandomSkinFromCase(caseSkins) {
+        const totalValue = caseSkins.reduce((acc, skinName) => {
             const skin = skins.find(s => s.name === skinName);
-            return sum + (skin ? skin.value : 0);
+            return acc + (skin ? skin.value : 0);
         }, 0);
-        const randomValue = Math.random() * totalValue;
+
+        let randomValue = Math.random() * totalValue;
         let cumulativeValue = 0;
-        for (const skinName of caseData.skins) {
+
+        for (const skinName of caseSkins) {
             const skin = skins.find(s => s.name === skinName);
             if (skin) {
                 cumulativeValue += skin.value;
@@ -154,6 +168,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return (basePrice[skin.rarity] * multiplier).toFixed(2);
     }
 
+    function animateCaseOpening(skin, price) {
+        caseAnimation.innerHTML = `
+            <div class="animation-box">Otwarcie skrzyni...</div>
+        `;
+        setTimeout(() => {
+            caseAnimation.innerHTML = "";
+            showCaseResult(skin, price);
+        }, 2000); // Adjust the duration as needed
+    }
+
     function showCaseResult(skin, price) {
         caseResult.innerHTML = `
             <h3>Zdobyłeś: ${skin.name}</h3>
@@ -174,12 +198,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function sellSkin(skin, price) {
         userInventory = userInventory.filter(s => s.name !== skin.name);
+        userBalance += parseFloat(price);
         displayInventory();
+        displayShop();
         alert(`Sprzedałeś ${skin.name} za ${price}$`);
     }
 
     function upgradeSkin(skin) {
-        alert(`Ulepszenie ${skin.name} jest w trakcie implementacji.`);
+        selectedUpgradeSkins.push(skin);
+        if (selectedUpgradeSkins.length <= 3) {
+            displaySelectedUpgradeSkins();
+        }
     }
 
     function displayInventory() {
@@ -191,7 +220,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p>${skin.name} (${skin.price}$)</p>
                 <img src="${skin.image}" alt="${skin.name}">
             `;
+            skinDiv.addEventListener("click", () => {
+                showInventorySkinOptions(skin);
+            });
             inventory.appendChild(skinDiv);
+        });
+    }
+
+    function showInventorySkinOptions(skin) {
+        caseResult.innerHTML = `
+            <h3>${skin.name}</h3>
+            <p>Cena: ${skin.price}$</p>
+            <img src="${skin.image}" alt="${skin.name}">
+            <button id="sell-skin-button">Sprzedaj</button>
+            <button id="upgrade-skin-button">Ulepsz</button>
+        `;
+
+        document.getElementById("sell-skin-button").addEventListener("click", () => {
+            sellSkin(skin, skin.price);
+        });
+
+        document.getElementById("upgrade-skin-button").addEventListener("click", () => {
+            upgradeSkin(skin);
         });
     }
 
@@ -209,6 +259,72 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             upgradeOptions.appendChild(skinDiv);
         });
+    }
+
+    function displaySelectedUpgradeSkins() {
+        selectedSkins.innerHTML = "";
+        selectedUpgradeSkins.forEach(skin => {
+            const skinDiv = document.createElement("div");
+            skinDiv.classList.add("skin");
+            skinDiv.innerHTML = `
+                <p>${skin.name} (${skin.price}$)</p>
+                <img src="${skin.image}" alt="${skin.name}">
+            `;
+            selectedSkins.appendChild(skinDiv);
+        });
+    }
+
+    document.querySelectorAll(".upgrade-multiplier").forEach(button => {
+        button.addEventListener("click", () => {
+            const multiplier = parseFloat(button.dataset.multiplier);
+            upgradeSelectedSkins(multiplier);
+        });
+    });
+
+    function upgradeSelectedSkins(multiplier) {
+        const totalValue = selectedUpgradeSkins.reduce((acc, skin) => acc + parseFloat(skin.price), 0);
+        const targetValue = totalValue * multiplier;
+        const targetSkin = skins.find(skin => parseFloat(skin.price) >= targetValue);
+        if (targetSkin) {
+            userInventory = userInventory.filter(skin => !selectedUpgradeSkins.includes(skin));
+            userInventory.push({ ...targetSkin, price: targetValue.toFixed(2) });
+            selectedUpgradeSkins = [];
+            displayInventory();
+            displayUpgradeOptions();
+            alert(`Ulepszyłeś skiny do ${targetSkin.name} o wartości ${targetValue.toFixed(2)}$`);
+        } else {
+            alert("Nie znaleziono skina o odpowiedniej wartości do ulepszenia.");
+        }
+    }
+
+    function displayShop() {
+        shop.innerHTML = "";
+        skins.forEach(skin => {
+            const skinDiv = document.createElement("div");
+            skinDiv.classList.add("skin");
+            skinDiv.innerHTML = `
+                <p>${skin.name} (${skin.price}$)</p>
+                <img src="${skin.image}" alt="${skin.name}">
+                <button class="buy-skin-button">Kup</button>
+            `;
+            skinDiv.querySelector(".buy-skin-button").addEventListener("click", () => {
+                buySkin(skin);
+            });
+            shop.appendChild(skinDiv);
+        });
+    }
+
+    function buySkin(skin) {
+        const price = parseFloat(skin.price);
+        if (userBalance >= price) {
+            userBalance -= price;
+            userInventory.push(skin);
+            displayInventory();
+            displayShop();
+            alert(`Kupiłeś ${skin.name} za ${price}$`);
+        } else {
+            alert("Nie masz wystarczającej ilości pieniędzy.");
+        }
     }
 
     function generateAllSkinsPages() {
@@ -241,8 +357,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const pageButton = document.createElement("button");
             pageButton.innerText = page + 1;
             pageButton.addEventListener("click", () => {
-                document.querySelectorAll(".skins-page").forEach((el, index) => {
-                    el.style.display = index === page ? "block" : "none";
+                document.querySelectorAll(".skins-page").forEach((pageDiv, index) => {
+                    pageDiv.style.display = index === page ? "block" : "none";
                 });
             });
             pagination.appendChild(pageButton);
