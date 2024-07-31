@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CS2 Case Opener</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <nav>
@@ -13,27 +13,34 @@
         <button id="upgrader-button">Upgrader</button>
         <button id="all-skins-button">Wszystkie Skins</button>
     </nav>
+
     <section id="cases-section" class="active">
-        <h1>Skrzynie</h1>
         <div id="case-container"></div>
-        <button id="open-case-button">Otwórz Skrzynię</button>
-        <div id="case-animation"></div>
-        <div id="case-result"></div>
     </section>
-    <section id="inventory-section">
-        <h1>Ekwipunek</h1>
-        <div id="inventory"></div>
-    </section>
-    <section id="upgrader-section">
-        <h1>Upgrader</h1>
-        <div id="upgrade-options">
-            <!-- Opcje upgrader -->
+
+    <section id="case-details-section">
+        <div id="case-details">
+            <h2 id="case-name"></h2>
+            <img id="case-image" alt="Case Image">
+            <button id="open-case-button">Otwórz skrzynkę</button>
+            <div id="case-animation"></div>
+            <div id="case-result"></div>
+            <div id="case-skins"></div>
         </div>
     </section>
+
+    <section id="inventory-section">
+        <div id="inventory"></div>
+    </section>
+
+    <section id="upgrader-section">
+        <div id="upgrade-options"></div>
+    </section>
+
     <section id="all-skins-section">
-        <h1>Wszystkie Skins</h1>
         <div id="all-skins"></div>
     </section>
+
     <script src="script.js"></script>
 </body>
 </html>
