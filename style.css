@@ -1,101 +1,80 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #2b2b2b;
+    background-color: #121212;
     color: #fff;
     margin: 0;
     padding: 0;
+}
+
+nav {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-header {
-    background-color: #1a1a1a;
-    width: 100%;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-h1 {
-    margin: 0;
+    justify-content: space-around;
+    background-color: #1f1f1f;
+    padding: 1em 0;
 }
 
 nav button {
-    background-color: #3b3b3b;
+    background-color: #2b2b2b;
     color: #fff;
     border: none;
-    padding: 10px 20px;
-    margin: 0 10px;
+    padding: 0.5em 1em;
     cursor: pointer;
-    border-radius: 5px;
     transition: background-color 0.3s;
 }
 
 nav button:hover {
-    background-color: #575757;
-}
-
-main {
-    max-width: 1200px;
-    width: 100%;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
+    background-color: #3d3d3d;
 }
 
 section {
     display: none;
+    padding: 2em;
 }
 
 section.active {
     display: block;
 }
 
-#case-container, #upgrader-container {
+#case-container, #inventory, #all-skins {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+}
+
+.case, .skin {
+    background-color: #2b2b2b;
+    padding: 1em;
+    border-radius: 5px;
+    text-align: center;
+    width: calc(25% - 1em);
+}
+
+.case img, .skin img {
+    max-width: 100%;
+    border-radius: 5px;
+}
+
+#case-animation, #case-result {
+    margin-top: 2em;
     text-align: center;
 }
 
-#open-case-button {
-    background-color: #ff9800;
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1em;
+}
+
+.pagination button {
+    background-color: #2b2b2b;
     color: #fff;
     border: none;
-    padding: 15px 30px;
+    padding: 0.5em 1em;
+    margin: 0 0.2em;
     cursor: pointer;
-    border-radius: 5px;
     transition: background-color 0.3s;
 }
 
-#open-case-button:hover {
-    background-color: #e68a00;
-}
-
-#case-animation {
-    margin: 20px 0;
-    height: 200px;
-    border: 2px solid #fff;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#case-result {
-    margin-top: 20px;
-}
-
-#inventory {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-#inventory .skin {
-    width: 100px;
-    height: 100px;
-    background-color: #4b4b4b;
-    margin: 10px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.pagination button:hover {
+    background-color: #3d3d3d;
 }
