@@ -82,17 +82,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getRandomSkinFromCase(caseData) {
-        const totalValue = caseData.skins.reduce((sum, skinId) => {
-            const skin = skins.find(s => s.id === skinId);
-            return sum + skin.value;
+        const totalValue = caseData.skins.reduce((sum, skinName) => {
+            const skin = skins.find(s => s.name === skinName);
+            return sum + (skin ? skin.value : 0);
         }, 0);
         const randomValue = Math.random() * totalValue;
         let cumulativeValue = 0;
-        for (const skinId of caseData.skins) {
-            const skin = skins.find(s => s.id === skinId);
-            cumulativeValue += skin.value;
-            if (randomValue <= cumulativeValue) {
-                return skin;
+        for (const skinName of caseData.skins) {
+            const skin = skins.find(s => s.name === skinName);
+            if (skin) {
+                cumulativeValue += skin.value;
+                if (randomValue <= cumulativeValue) {
+                    return skin;
+                }
             }
         }
     }

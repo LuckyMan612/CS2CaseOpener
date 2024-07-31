@@ -5,9 +5,9 @@
         "description": "A case with example skins.",
         "image": "images/example_case.png",
         "skins": [
-            "skin-65604", 
-            "skin-12345", 
-            "skin-67890"
+            "Desert Eagle | Urban DDPAT",
+            "AK-47 | Redline",
+            "AWP | Asiimov"
         ]
     }
 ]
