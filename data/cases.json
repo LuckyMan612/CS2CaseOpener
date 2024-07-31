@@ -1,13 +1,13 @@
 [
     {
         "id": "case-1",
-        "name": "Example Case",
+        "name": "Sigma Case",
         "description": "A case with example skins.",
         "image": "images/example_case.png",
         "skins": [
             "Desert Eagle | Urban DDPAT",
-            "AK-47 | Redline",
-            "AWP | Asiimov"
+            "Desert Eagle | Urban DDPAT",
+            "Desert Eagle | Urban DDPAT"
         ]
     }
 ]
