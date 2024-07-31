@@ -78,3 +78,34 @@ section.active {
 .pagination button:hover {
     background-color: #3d3d3d;
 }
+.animation-container {
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    height: 100px;
+    margin: 1em 0;
+    position: relative;
+}
+
+.animation-container img {
+    width: 80px;
+    margin-right: 5px;
+    animation: slide 3s linear infinite;
+}
+
+@keyframes slide {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.skin-result {
+    text-align: center;
+    padding: 1em;
+    border: 1px solid #3d3d3d;
+    border-radius: 10px;
+    background-color: #1f1f1f;
+}

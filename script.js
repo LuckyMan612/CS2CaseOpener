@@ -64,22 +64,46 @@ document.addEventListener("DOMContentLoaded", () => {
         section.classList.add("active");
     }
 
-    function openCase() {
-        caseAnimation.innerHTML = "Otwieranie skrzyni...";
-        caseResult.innerHTML = "";
-        setTimeout(() => {
-            const skin = getRandomSkinFromCase(cases[0]);
-            const price = generatePrice(skin);
-            caseResult.innerHTML = `Zdobyłeś: ${skin.name} (${price}$)`;
-            if (skin.image) {
-                const img = document.createElement("img");
-                img.src = skin.image;
-                img.alt = skin.name;
-                caseResult.appendChild(img);
-            }
-            userInventory.push({ ...skin, price });
-        }, 2000);
+function openCase(caseData) {
+    caseAnimation.innerHTML = "Otwieranie skrzyni...";
+    caseResult.innerHTML = "";
+
+    const animationContainer = document.createElement("div");
+    animationContainer.classList.add("animation-container");
+    for (let i = 0; i < 30; i++) {
+        const randomSkin = getRandomSkinFromCase(caseData);
+        const img = document.createElement("img");
+        img.src = randomSkin.image;
+        img.alt = randomSkin.name;
+        animationContainer.appendChild(img);
     }
+    caseAnimation.appendChild(animationContainer);
+
+    setTimeout(() => {
+        const skin = getRandomSkinFromCase(caseData);
+        const price = generatePrice(skin);
+        caseResult.innerHTML = `
+            <div class="skin-result">
+                <p>Zdobyłeś: ${skin.name} (${price}$)</p>
+                <img src="${skin.image}" alt="${skin.name}">
+                <button onclick="addToInventory('${skin.name}', ${price})">Dodaj do ekwipunku</button>
+                <button onclick="sellSkin('${skin.name}', ${price})">Sprzedaj</button>
+            </div>
+        `;
+        userInventory.push({ ...skin, price });
+        caseAnimation.innerHTML = "";
+    }, 3000);
+}
+function addToInventory(skinName, price) {
+    const skin = skins.find(s => s.name === skinName);
+    userInventory.push({ ...skin, price });
+    alert(`${skin.name} dodany do ekwipunku.`);
+}
+
+function sellSkin(skinName, price) {
+    userInventory = userInventory.filter(s => s.name !== skinName);
+    alert(`${skinName} sprzedany za ${price}$`);
+}
 
     function getRandomSkinFromCase(caseData) {
         const totalValue = caseData.skins.reduce((sum, skinName) => {
@@ -181,3 +205,76 @@ document.addEventListener("DOMContentLoaded", () => {
         allSkins.appendChild(pagination);
     }
 });
+function displayUpgrader() {
+    upgradeOptions.innerHTML = "";
+    userInventory.forEach(skin => {
+        const upgradeDiv = document.createElement("div");
+        upgradeDiv.classList.add("skin");
+        upgradeDiv.innerHTML = `
+            <p>${skin.name} (${skin.price}$)</p>
+            <img src="${skin.image}" alt="${skin.name}">
+            <button onclick="upgradeSkin('${skin.name}')">Upgrade</button>
+        `;
+        upgradeOptions.appendChild(upgradeDiv);
+    });
+}
+
+function upgradeSkin(skinName) {
+    const skin = userInventory.find(s => s.name === skinName);
+    const upgradeRates = [1.5, 2, 5, 10];
+    const upgrades = upgradeRates.map(rate => {
+        const newPrice = (skin.price * rate).toFixed(2);
+        return { rate, newPrice };
+    });
+
+    upgradeOptions.innerHTML = `
+        <h2>Upgrade ${skin.name}</h2>
+        <div class="upgrade-options">
+            ${upgrades.map(u => `
+                <div class="upgrade-option">
+                    <p>${u.rate}x for ${u.newPrice}$</p>
+                    <button onclick="confirmUpgrade('${skin.name}', ${u.rate})">Upgrade</button>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function confirmUpgrade(skinName, rate) {
+    const skin = userInventory.find(s => s.name === skinName);
+    const newPrice = (skin.price * rate).toFixed(2);
+
+    const newSkin = getRandomSkinForUpgrade(newPrice);
+    if (newSkin) {
+        alert(`Successfully upgraded to ${newSkin.name} worth ${newPrice}$`);
+        userInventory = userInventory.filter(s => s.name !== skinName);
+        userInventory.push({ ...newSkin, price: newPrice });
+        displayInventory();
+        displayUpgrader();
+    } else {
+        alert("No suitable upgrade found.");
+    }
+}
+
+function getRandomSkinForUpgrade(price) {
+    const suitableSkins = skins.filter(skin => {
+        const generatedPrice = generatePrice(skin);
+        return generatedPrice <= price;
+    });
+    return suitableSkins[Math.floor(Math.random() * suitableSkins.length)];
+}
+
+function generatePrice(skin) {
+    const basePrice = {
+        "Industrial Grade": 1,
+        "Consumer Grade": 0.5,
+        "Mil-Spec Grade": 5,
+        "Restricted": 10,
+        "Classified": 50,
+        "Covert": 100,
+        "Contraband": 200,
+        "Extraordinary": 1000,
+    };
+    const multiplier = Math.random() * (1.5 - 0.5) + 0.5;
+    return (basePrice[skin.rarity] * multiplier).toFixed(2);
+}
