@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otwieranie Skrzyń CS2</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Otwieranie Skrzyń CS2</h1>
+        <nav>
+            <button id="cases-button">Skrzynie</button>
+            <button id="inventory-button">Ekwipunek</button>
+            <button id="upgrader-button">Upgrader</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="cases-section" class="active">
+            <div id="case-container">
+                <button id="open-case-button">Otwórz Skrzynię</button>
+                <div id="case-animation"></div>
+                <div id="case-result"></div>
+            </div>
+        </section>
+
+        <section id="inventory-section">
+            <h2>Twój Ekwipunek</h2>
+            <div id="inventory"></div>
+        </section>
+
+        <section id="upgrader-section">
+            <h2>Upgrader</h2>
+            <div id="upgrader-container">
+                <!-- Upgrader content -->
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
